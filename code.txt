@@ -1,0 +1,48 @@
+import numpy as np
+from Orange.data import Table, Domain, ContinuousVariable
+
+data=np.array(in_data.X)
+haar=np.array([[r.mean(),r.std()] for r in data])
+out_data=Table(Domain([ContinuousVariable("Mean"),ContinuousVariable("Standard")]),haar)
+print("Success")
+
+
+
+import numpy as np
+from sklearn.cluster import AgglomerativeClustering
+from Orange.data import Table, Domain
+from Orange.clustering import hierarchical
+from Orange.widgets.utils.plot import OWScatterPlotBase
+import matplotlib.pyplot as plt
+# Load data
+data = Table("your_dataset.csv")
+# Convert Orange Table to numpy array
+X = np.array([list(row) for row in data])
+# Function to perform divisive hierarchical clustering
+def divisive_clustering(X, n_clusters=2):
+# Initially, all points are in one cluster
+clusters = [X]
+while len(clusters) < n_clusters:
+# Find the cluster to split
+cluster_to_split = max(clusters, key=len)
+clusters.remove(cluster_to_split)
+# Perform agglomerative clustering on the chosen cluster
+clustering = AgglomerativeClustering(n_clusters=2)
+labels = clustering.fit_predict(cluster_to_split)
+# Split the chosen cluster into two sub-clusters
+sub_cluster_1 = cluster_to_split[labels == 0]
+sub_cluster_2 = cluster_to_split[labels == 1]
+# Add the sub-clusters to the list of clusters
+clusters.append(sub_cluster_1)
+clusters.append(sub_cluster_2)
+return clusters
+# Perform divisive clustering
+clusters = divisive_clustering(X, n_clusters=3)
+# Visualize the clusters
+colors = ['red', 'green', 'blue']
+for cluster, color in zip(clusters, colors):
+plt.scatter(cluster[:, 0], cluster[:, 1], c=color)
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.title('Divisive Hierarchical Clustering')
+plt.show()
